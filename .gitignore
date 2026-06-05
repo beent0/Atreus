@@ -1,0 +1,16 @@
+# Python virtual environment
+venv/
+__pycache__/
+*.pyc
+
+# Local SQLite databases
+*.db
+backend/*.db
+
+# Automated zip backups
+backups/
+
+# Local OS metadata
+.DS_Store
+.directory
+.Thumbs.db

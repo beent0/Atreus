@@ -1,0 +1,32 @@
+version: '3.8'
+
+services:
+  atreus:
+    build: .
+    container_name: atreus
+    ports:
+      - "8000:8000"
+    environment:
+      # URL to connect to your CouchDB database (creates a single "atreus" database automatically)
+      # For the companion container in this stack, use http://admin:adminpassword@couchdb:5984
+      - COUCHDB_URL=http://admin:adminpassword@couchdb:5984
+    extra_hosts:
+      # Maps host.docker.internal to host's network adapter gateway IP
+      # This allows container to talk to Ollama running directly on host machine (port 11434)
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    depends_on:
+      - couchdb
+
+  couchdb:
+    image: couchdb:3.3
+    container_name: atreus-couchdb
+    ports:
+      - "5984:5984"
+    environment:
+      - COUCHDB_USER=admin
+      - COUCHDB_PASSWORD=adminpassword
+    volumes:
+      # Persist CouchDB data on the host machine
+      - ./couchdb-data:/opt/couchdb/data
+    restart: unless-stopped

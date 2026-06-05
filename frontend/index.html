@@ -1,0 +1,655 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Atreus - Premium Tasks Vault</title>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <!-- FontAwesome for Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Main Style Sheet -->
+    <link rel="stylesheet" href="styles.css?v=5">
+</head>
+<body class="atreus-snow">
+    <div class="app-container">
+        
+        <!-- ================= SIDEBAR ================= -->
+        <aside class="sidebar" id="app-sidebar">
+            <div class="sidebar-header">
+                <div class="brand">
+                    <div class="brand-logo">
+                        <svg width="28" height="28" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <rect width="32" height="32" rx="8" fill="url(#brand-grad)" />
+                            <path d="M9 16L14 21L23 10M14 21L9 16" stroke="white" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" />
+                            <defs>
+                                <linearGradient id="brand-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
+                                    <stop stop-color="#7dd3fc" />
+                                    <stop stop-color="#e0a96d" />
+                                </linearGradient>
+                            </defs>
+                        </svg>
+                    </div>
+                    <h1>Atreus</h1>
+                </div>
+            </div>
+
+            <!-- Quick Add Button -->
+            <button class="btn btn-quick-add" id="sidebar-quick-add-btn">
+                <i class="fa-solid fa-plus"></i> Add Task
+            </button>
+
+            <!-- Navigation Links -->
+            <nav class="sidebar-nav">
+                <ul class="nav-list">
+                    <li class="nav-item active" data-view="inbox" id="nav-inbox">
+                        <i class="fa-solid fa-inbox icon-inbox"></i>
+                        <span>Inbox</span>
+                        <span class="badge count-badge" id="badge-inbox-count">0</span>
+                    </li>
+                    <li class="nav-item" data-view="today" id="nav-today">
+                        <i class="fa-solid fa-calendar-day icon-today"></i>
+                        <span>Today</span>
+                        <span class="badge count-badge" id="badge-today-count">0</span>
+                    </li>
+                    <li class="nav-item" data-view="upcoming" id="nav-upcoming">
+                        <i class="fa-solid fa-calendar-days icon-upcoming"></i>
+                        <span>Upcoming</span>
+                    </li>
+                    <li class="nav-item" data-view="calendar" id="nav-calendar">
+                        <i class="fa-solid fa-calendar-week icon-calendar"></i>
+                        <span>Calendar</span>
+                    </li>
+                    <li class="nav-item" data-view="matrix" id="nav-matrix">
+                        <i class="fa-solid fa-table-cells-large icon-matrix"></i>
+                        <span>Priority Matrix</span>
+                    </li>
+                    <li class="nav-item" data-view="workload" id="nav-workload">
+                        <i class="fa-solid fa-calendar-check icon-workload" style="color:var(--accent);"></i>
+                        <span>Workload</span>
+                    </li>
+                </ul>
+            </nav>
+
+            <!-- Projects Section -->
+            <div class="sidebar-section">
+                <div class="section-title">
+                    <span>Projects</span>
+                    <button class="btn-action-sm" id="add-project-btn" title="Add Project">
+                        <i class="fa-solid fa-plus"></i>
+                    </button>
+                </div>
+                <ul class="project-list" id="sidebar-projects-list">
+                    <!-- Loaded dynamically via JS -->
+                </ul>
+            </div>
+
+            <!-- Footer: Backups, Settings, Filters, Analytics -->
+            <!-- Footer: Settings & View more popover -->
+            <div class="sidebar-footer" style="padding: 16px; border-top: 1px solid var(--border-color);">
+                <ul class="nav-list" style="margin: 0; padding: 0; list-style: none;">
+                    <li class="nav-item" data-view="settings" id="nav-settings">
+                        <i class="fa-solid fa-gear"></i>
+                        <span>Settings</span>
+                    </li>
+                    <li class="nav-item" id="nav-view-more" style="position: relative; cursor: pointer;">
+                        <i class="fa-solid fa-ellipsis"></i>
+                        <span>View more</span>
+                        
+                        <!-- Popover Menu -->
+                        <ul class="view-more-popover" id="view-more-popover" style="display: none; position: absolute; bottom: calc(100% + 8px); left: 0; background: var(--bg-card); border: 1px solid var(--border-color); border-radius: var(--border-radius-md); box-shadow: var(--shadow-premium); min-width: 190px; padding: 6px 0; margin: 0; list-style: none; z-index: 1000; backdrop-filter: var(--glass-blur);">
+                            <li class="nav-item" data-view="filters" id="nav-filters" style="padding: 8px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary); transition: var(--transition-fast);">
+                                <i class="fa-solid fa-tags icon-filters"></i>
+                                <span>Filters & Tags</span>
+                            </li>
+                            <li class="nav-item" data-view="analytics" id="nav-analytics" style="padding: 8px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary); transition: var(--transition-fast);">
+                                <i class="fa-solid fa-box-archive icon-analytics"></i>
+                                <span>Archive & Activity</span>
+                            </li>
+                            <li class="nav-item" data-view="backups" id="nav-backups" style="padding: 8px 16px; display: flex; align-items: center; gap: 10px; cursor: pointer; color: var(--text-primary); transition: var(--transition-fast);">
+                                <i class="fa-solid fa-database"></i>
+                                <span>Backups</span>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </div>
+        </aside>
+
+        <!-- ================= MAIN PANEL ================= -->
+        <main class="main-panel">
+            <header class="main-header">
+                <div class="header-left">
+                    <button class="btn-sidebar-toggle" id="sidebar-toggle" aria-label="Toggle Sidebar">
+                        <i class="fa-solid fa-bars"></i>
+                    </button>
+                    <h2 class="view-title" id="current-view-title">Inbox</h2>
+                    <span class="view-subtitle" id="current-view-subtitle">Saturday, May 30</span>
+                </div>
+                <div class="header-right">
+                    <!-- Project Actions (Export/Import templates etc.) -->
+                    <div class="header-actions" id="project-header-actions" style="display: none;">
+                        <button class="btn btn-secondary-sm" id="btn-export-template" title="Save Project as Template">
+                            <i class="fa-solid fa-file-export"></i> Save Template
+                        </button>
+                    </div>
+                    <button class="btn btn-primary-sm" id="header-quick-add-btn">
+                        <i class="fa-solid fa-plus"></i> Quick Add
+                    </button>
+                </div>
+            </header>
+
+            <!-- Sync Alert (Show when syncing or backend modified) -->
+            <div class="sync-banner" id="sync-banner" style="display: none;">
+                <i class="fa-solid fa-rotate-right fa-spin"></i> Updating changes from Obsidian...
+            </div>
+
+            <!-- Scrollable View Port -->
+            <div class="viewport" id="view-viewport">
+                
+                <!-- 1. TASKS LIST VIEW (Shared for Inbox, Today, Projects, Filters) -->
+                <div class="view-content active" id="view-tasks">
+                    <div class="tasks-container" id="tasks-list-content">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- 2. UPCOMING VIEW -->
+                <div class="view-content" id="view-upcoming">
+                    <div class="upcoming-timeline" id="upcoming-timeline-content">
+                        <!-- Loaded dynamically via JS -->
+                    </div>
+                </div>
+
+                <!-- 3. CALENDAR VIEW -->
+                <div class="view-content" id="view-calendar">
+                    <div class="calendar-container">
+                        <div class="calendar-header">
+                            <button class="btn btn-icon" id="cal-prev-month"><i class="fa-solid fa-chevron-left"></i></button>
+                            <h3 id="cal-month-year">May 2026</h3>
+                            <button class="btn btn-icon" id="cal-next-month"><i class="fa-solid fa-chevron-right"></i></button>
+                        </div>
+                        <div class="calendar-grid-header">
+                            <div>Sun</div><div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div>
+                        </div>
+                        <div class="calendar-grid" id="calendar-grid-days">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. FILTERS & LABELS PANEL -->
+                <div class="view-content" id="view-filters">
+                    <div class="filters-panel-grid">
+                        <div class="card filter-card">
+                            <h3><i class="fa-solid fa-magnifying-glass"></i> Filter Query Builder</h3>
+                            <p class="card-desc">Type powerful Atreus-like queries to search your journaled tasks instantly.</p>
+                            <div class="query-builder-form">
+                                <div class="form-group">
+                                    <input type="text" id="filter-query-input" placeholder="e.g. today & p1, @work & overdue" class="form-control">
+                                    <button class="btn btn-primary" id="btn-run-query">Run Query</button>
+                                </div>
+                            </div>
+                            <div class="query-help">
+                                <strong>Syntax Help:</strong>
+                                <ul>
+                                    <li><code>today</code>, <code>tomorrow</code>, <code>overdue</code> - date selectors</li>
+                                    <li><code>p1</code>, <code>p2</code>, <code>p3</code>, <code>p4</code> - priorities</li>
+                                    <li><code>@work</code>, <code>@home</code> - labels/tags</li>
+                                    <li><code>&</code> (AND), <code>|</code> (OR), <code>!</code> (NOT) - operators</li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="card labels-card">
+                            <h3><i class="fa-solid fa-tags"></i> All Tags in Vault</h3>
+                            <div class="labels-cloud" id="labels-cloud-content">
+                                <!-- Loaded dynamically via JS -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. ARCHIVE & ACTIVITY VIEW -->
+                <div class="view-content" id="view-analytics">
+                    <div class="archive-container">
+                        <!-- Stats Header Row -->
+                        <div class="archive-header-row" style="margin-bottom:20px;">
+                            <div class="card stat-mini-card" style="display:flex; flex-direction:column; align-items:center; padding:16px; max-width: 320px; margin: 0 auto;">
+                                <h3 id="archive-total-count" style="font-size:28px; font-weight:700; color:var(--accent); margin:0;">0</h3>
+                                <p style="color:var(--text-secondary); margin:4px 0 0 0; font-size:13px;">Total Completed & Archived Tasks</p>
+                            </div>
+                        </div>
+
+                        <!-- Archive Search / Filter Row -->
+                        <div class="archive-filters" style="display:flex; gap:12px; margin-bottom:20px;">
+                            <input type="text" id="archive-search-input" class="form-control" placeholder="Search archived tasks..." style="flex:2;">
+                            <select id="archive-project-filter" class="form-control" style="flex:1;">
+                                <option value="all">All Projects</option>
+                            </select>
+                        </div>
+
+                        <!-- Archived Tasks & Activity History Split Grid -->
+                        <div class="archive-split-layout" style="display:flex; gap:20px; align-items:flex-start;">
+                            <!-- Archived Tasks List -->
+                            <div class="card archive-list-card" style="flex:1 1 0%; min-width:0; margin-bottom:0; padding:20px;">
+                                <h3 style="font-size:16px; font-weight:600; margin-bottom:16px;"><i class="fa-solid fa-box-archive" style="color:var(--accent); margin-right:8px;"></i> Completed & Archived Tasks</h3>
+                                <div class="archive-tasks-list" id="archive-tasks-content" style="display:flex; flex-direction:column; gap:10px;">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+    
+                            <!-- Recent Activity Log -->
+                            <div class="card activity-card" style="flex:1 1 0%; min-width:0; padding:20px;">
+                                <h3 style="font-size:16px; font-weight:600; margin-bottom:16px;"><i class="fa-solid fa-clock-rotate-left" style="color:var(--accent); margin-right:8px;"></i> Recent Activity History</h3>
+                                <div class="activity-timeline" id="stats-activity-timeline">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. BACKUPS VIEW -->
+                <div class="view-content" id="view-backups">
+                    <div class="card backups-card">
+                        <div class="card-header-row">
+                            <div>
+                                <h3><i class="fa-solid fa-file-zipper"></i> Automated Backup Vault</h3>
+                                <p class="card-desc">Your Markdown files are automatically backed up in ZIP format. You can easily roll back your changes or trigger manual backups.</p>
+                            </div>
+                            <button class="btn btn-primary" id="btn-create-backup">
+                                <i class="fa-solid fa-cloud-arrow-up"></i> Backup Now
+                            </button>
+                        </div>
+                        
+                        <div class="backup-list-container">
+                            <table class="backup-table">
+                                <thead>
+                                    <tr>
+                                        <th>Date Created</th>
+                                        <th>Filename</th>
+                                        <th>Size</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="backup-list-rows">
+                                    <!-- Loaded dynamically via JS -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. PRIORITY MATRIX (EISENHOWER MATRIX) VIEW -->
+                <div class="view-content" id="view-matrix">
+                    <div class="matrix-layout">
+                        <!-- Q1 & Q2 Row -->
+                        <div class="matrix-row">
+                            <!-- Quadrant 1: Urgent & Important -->
+                            <div class="card matrix-quadrant q-urgent-important">
+                                <div class="quadrant-header">
+                                    <span class="quadrant-badge q1-badge">Q1</span>
+                                    <h4>Urgent & Important</h4>
+                                </div>
+                                <div class="quadrant-tasks-flow" id="quadrant-q1-tasks">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Quadrant 2: Important & Not Urgent -->
+                            <div class="card matrix-quadrant q-not-urgent-important">
+                                <div class="quadrant-header">
+                                    <span class="quadrant-badge q2-badge">Q2</span>
+                                    <h4>Important & Not Urgent</h4>
+                                </div>
+                                <div class="quadrant-tasks-flow" id="quadrant-q2-tasks">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Q3 & Q4 Row -->
+                        <div class="matrix-row">
+                            <!-- Quadrant 3: Urgent & Not Important -->
+                            <div class="card matrix-quadrant q-urgent-not-important">
+                                <div class="quadrant-header">
+                                    <span class="quadrant-badge q3-badge">Q3</span>
+                                    <h4>Urgent & Not Important</h4>
+                                </div>
+                                <div class="quadrant-tasks-flow" id="quadrant-q3-tasks">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+
+                            <!-- Quadrant 4: Not Urgent & Not Important -->
+                            <div class="card matrix-quadrant q-not-urgent-not-important">
+                                <div class="quadrant-header">
+                                    <span class="quadrant-badge q4-badge">Q4</span>
+                                    <h4>Not Urgent & Not Important</h4>
+                                </div>
+                                <div class="quadrant-tasks-flow" id="quadrant-q4-tasks">
+                                    <!-- Loaded dynamically via JS -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 7. SETTINGS PANEL -->
+                <div class="view-content" id="view-settings">
+                    <div class="card settings-card">
+                        <h3><i class="fa-solid fa-gears"></i> Core Preferences</h3>
+                        <form id="settings-form" class="settings-form-layout">
+                            <div class="form-group-col">
+                                <label for="setting-vault-path">Obsidian Vault Absolute Directory</label>
+                                <div class="input-with-button">
+                                    <input type="text" id="setting-vault-path" class="form-control" placeholder="/home/user/vaults/Atreus">
+                                    <span class="input-tip">Leave empty to use default local workspace vault. Ensure this points to the directory containing your project .md files.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group-col">
+                                    <label for="setting-ollama-url">Local Ollama API Service URL</label>
+                                    <input type="text" id="setting-ollama-url" class="form-control" placeholder="http://localhost:11434">
+                                    <span class="input-tip">Ensure your local Ollama is active (`ollama serve`).</span>
+                                </div>
+                                <div class="form-group-col">
+                                    <label for="setting-ollama-model">Ollama Model Name</label>
+                                    <input type="text" id="setting-ollama-model" class="form-control" placeholder="e.g. llama3, mistral, gemma">
+                                    <span class="input-tip">Must be downloaded locally (`ollama run [model]`).</span>
+                                </div>
+                            </div>
+
+
+
+                            <div class="form-row">
+                                <div class="form-group-col">
+                                    <label for="setting-week-start">Start Week On</label>
+                                    <select id="setting-week-start" class="form-control">
+                                        <option value="monday">Monday</option>
+                                        <option value="sunday">Sunday</option>
+                                    </select>
+                                    <span class="input-tip">Affects calendar layout and workload map alignment.</span>
+                                </div>
+                                <div class="form-group-col">
+                                    <label for="setting-task-sort">Default Task Sorting</label>
+                                    <select id="setting-task-sort" class="form-control">
+                                        <option value="priority_then_due">Priority, then Due Date</option>
+                                        <option value="due_then_priority">Due Date, then Priority</option>
+                                        <option value="project_then_priority">Project, then Priority</option>
+                                    </select>
+                                    <span class="input-tip">Determines the display order of tasks in active lists.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group-col">
+                                    <label for="setting-carry-over">Carry Over Overdue Tasks</label>
+                                    <select id="setting-carry-over" class="form-control">
+                                        <option value="true">Yes (Add to Today's Workload Index)</option>
+                                        <option value="false">No (Ignore Overdue Workload)</option>
+                                    </select>
+                                    <span class="input-tip">If yes, incomplete overdue tasks affect today's workload color.</span>
+                                </div>
+                                <div class="form-group-col">
+                                    <label for="setting-archive-behavior">Completion Behavior</label>
+                                    <select id="setting-archive-behavior" class="form-control">
+                                        <option value="true">Archive Completed Tasks Immediately</option>
+                                        <option value="false">Keep Completed Tasks in Project Files</option>
+                                    </select>
+                                    <span class="input-tip">Controls whether tasks are moved to the Archive folder upon checkmark.</span>
+                                </div>
+                            </div>
+
+                            <div class="form-group-col">
+                                <label for="setting-ai-instructions">AI Assistant Persona & Instructions</label>
+                                <textarea id="setting-ai-instructions" class="form-control" rows="3" style="resize: vertical; font-family: inherit;" placeholder="e.g. Act as a strict productivity coach. Focus on depth of work. Always speak in English."></textarea>
+                                <span class="input-tip">Provide custom system instructions to mold the AI assistant's persona, language, and coaching style.</span>
+                            </div>
+
+                            <div class="form-group-col">
+                                <label>Visual Skin Theme</label>
+                                <div class="theme-grid">
+                                    <div class="theme-option" data-theme="obsidian-glass">
+                                        <div class="theme-preview p-glass"></div>
+                                        <span>Obsidian Glass</span>
+                                    </div>
+                                    <div class="theme-option active" data-theme="atreus-snow">
+                                        <div class="theme-preview p-snow"></div>
+                                        <span>Atreus Snow</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="indigo-night">
+                                        <div class="theme-preview p-indigo"></div>
+                                        <span>Indigo Night</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="clover-glass">
+                                        <div class="theme-preview p-clover"></div>
+                                        <span>Clover Glass</span>
+                                    </div>
+                                    <div class="theme-option" data-theme="dark-velvet">
+                                        <div class="theme-preview p-velvet"></div>
+                                        <span>Dark Velvet</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary" id="btn-save-settings">Save Configurations</button>
+                        </form>
+                    </div>
+
+                    <!-- Client App Installation Guide (Linux & Android integration) -->
+                    <div class="card app-install-card">
+                        <h3><i class="fa-solid fa-mobile-screen-button"></i> Homeserver Android & Linux Integration</h3>
+                        <p class="card-desc">Since this app is served directly from your homeserver, it operates as a full Progressive Web App (PWA) with native-level integration.</p>
+                        
+                        <div class="install-guide-grid">
+                            <div class="guide-box">
+                                <h4><i class="fa-brand fa-android text-android"></i> Android Native App</h4>
+                                <ol>
+                                    <li>Open your Chrome or Firefox browser on Android.</li>
+                                    <li>Navigate to your homeserver's address (e.g. <code>http://your-server-ip:8000/</code>).</li>
+                                    <li>Tap the three dots menu in Chrome, and select <strong>"Add to Home Screen"</strong> or <strong>"Install App"</strong>.</li>
+                                    <li>The app will install directly in your app drawer, launch in full screen (no browser address bar), and enable push notifications/reminders!</li>
+                                </ol>
+                            </div>
+                            <div class="guide-box">
+                                <h4><i class="fa-brand fa-linux text-linux"></i> Linux Desktop App</h4>
+                                <ol>
+                                    <li>Open Chrome, Edge, or Brave on your Linux machine.</li>
+                                    <li>Navigate to the local address (e.g. <code>http://localhost:8000/</code>).</li>
+                                    <li>Click the <strong>Install Icon</strong> in the right-hand corner of the address bar.</li>
+                                    <li>This registers a local <code>.desktop</code> entry, adding it to your application menu with full OS taskbar integrations!</li>
+                                </ol>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 8. WORKLOAD MAP PANEL -->
+                <div class="view-content" id="view-workload">
+                    <!-- Populated dynamically via JS -->
+                </div>
+
+            </div>
+        </main>
+    </div>
+
+    <!-- ================= MODALS ================= -->
+
+    <!-- 1. ADD / EDIT TASK MODAL -->
+    <div class="modal-overlay" id="task-modal" style="display: none;">
+        <div class="modal-card">
+            <header class="modal-header">
+                <h3 id="task-modal-title">Add New Task</h3>
+                <button class="btn-icon btn-modal-close" id="btn-task-modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <form id="task-form">
+                <!-- Task ID (hidden for new tasks) -->
+                <input type="hidden" id="task-input-id">
+                
+                <div class="form-group-col">
+                    <label for="task-input-title">Task Content</label>
+                    <input type="text" id="task-input-title" class="form-control" placeholder="Buy groceries 📅 tomorrow 🔺 #shopping" required>
+                    <span class="input-tip">Protip: You can type emojis or text shortcuts directly (e.g. "tomorrow", "#work", "p1") and the system will parse it instantly!</span>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group-col">
+                        <label for="task-input-project">Project</label>
+                        <select id="task-input-project" class="form-control">
+                            <!-- Populated dynamically -->
+                        </select>
+                    </div>
+                    <div class="form-group-col">
+                        <label for="task-input-section">Section</label>
+                        <input type="text" id="task-input-section" class="form-control" placeholder="Default" list="sections-list">
+                        <datalist id="sections-list">
+                            <!-- Populated dynamically -->
+                        </datalist>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group-col">
+                        <label for="task-input-due">Due Date</label>
+                        <input type="date" id="task-input-due" class="form-control">
+                    </div>
+                    <div class="form-group-col">
+                        <label>Deadline (Time)</label>
+                        <div style="display:flex; align-items:center; gap:12px; margin-top: 6px; height: 38px;">
+                            <label style="display:flex; align-items:center; gap:6px; font-size:13px; cursor:pointer; user-select:none; margin: 0; color: var(--text-secondary);">
+                                <input type="checkbox" id="task-input-has-deadline" style="cursor:pointer; width:16px; height:16px; accent-color: var(--accent);">
+                                Set Time Deadline
+                            </label>
+                            <input type="time" id="task-input-deadline-time" class="form-control" style="display:none; width:130px; height: 34px; padding: 4px 8px; font-size: 13.5px; border-radius: var(--border-radius-sm); border: 1px solid var(--border-color); background-color: var(--bg-input); color: var(--text-primary); outline: none;">
+                        </div>
+                        <input type="hidden" id="task-input-deadline">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="form-group-col">
+                        <label for="task-input-priority">Priority</label>
+                        <select id="task-input-priority" class="form-control">
+                            <option value="4">Priority 4 (None)</option>
+                            <option value="3">Priority 3 (Low)</option>
+                            <option value="2">Priority 2 (Medium)</option>
+                            <option value="1">Priority 1 (High)</option>
+                        </select>
+                    </div>
+                    <div class="form-group-col">
+                        <label for="task-input-recurring">Recurrence Rule</label>
+                        <input type="text" id="task-input-recurring" class="form-control" placeholder="e.g. every monday, every day">
+                    </div>
+                </div>
+
+                <div class="form-group-col" style="margin-top: 15px; margin-bottom: 15px;">
+                    <label for="task-input-labels">Labels (comma separated)</label>
+                    <input type="text" id="task-input-labels" class="form-control" placeholder="e.g. work, urgent">
+                </div>
+
+                <!-- Comments Block (Only visible when editing an existing task) -->
+                <div class="form-group-col" id="modal-comments-block" style="display: none;">
+                    <label>Task Notes & Comments</label>
+                    <div class="modal-comments-list" id="modal-comments-list-items">
+                        <!-- Loaded dynamically -->
+                    </div>
+                    <div class="input-with-button add-comment-row">
+                        <input type="text" id="task-new-comment-input" class="form-control" placeholder="Add a comment to this task...">
+                        <button type="button" class="btn btn-secondary-sm" id="btn-add-modal-comment">Add Note</button>
+                    </div>
+                </div>
+
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-task-modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="btn-task-modal-save">Save Task</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- 2. ADD PROJECT MODAL -->
+    <div class="modal-overlay" id="project-modal" style="display: none;">
+        <div class="modal-card modal-card-sm">
+            <header class="modal-header">
+                <h3>Add New Project</h3>
+                <button class="btn-icon btn-modal-close" id="btn-project-modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <form id="project-form">
+                <div class="form-group-col">
+                    <label for="project-input-name">Project Name (will create a .md note file)</label>
+                    <input type="text" id="project-input-name" class="form-control" placeholder="e.g. Shopping, Fitness" required>
+                    <span class="input-tip">Avoid spaces in project names if you want cleaner Markdown file references.</span>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-project-modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Create Project</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- 3. TEMPLATE IMPORT/EXPORT SELECTOR MODAL -->
+    <div class="modal-overlay" id="template-modal" style="display: none;">
+        <div class="modal-card modal-card-sm">
+            <header class="modal-header">
+                <h3>Import Project from Template</h3>
+                <button class="btn-icon btn-modal-close" id="btn-template-modal-close"><i class="fa-solid fa-xmark"></i></button>
+            </header>
+            <form id="template-form">
+                <div class="form-group-col">
+                    <label for="template-select-file">Select Reusable Template</label>
+                    <select id="template-select-file" class="form-control" required>
+                        <!-- Loaded dynamically -->
+                    </select>
+                </div>
+                <div class="form-group-col">
+                    <label for="template-input-project">New Project Name</label>
+                    <input type="text" id="template-input-project" class="form-control" placeholder="e.g. NewCampCampaign" required>
+                </div>
+                <footer class="modal-footer">
+                    <button type="button" class="btn btn-secondary" id="btn-template-modal-cancel">Cancel</button>
+                    <button type="submit" class="btn btn-primary">Import Template</button>
+                </footer>
+            </form>
+        </div>
+    </div>
+
+    <!-- ================= AI ASSISTANT CHAT WIDGET ================= -->
+    <div class="ai-spark-btn" id="ai-chat-toggle" title="Ask AI Assistant">
+        <i class="fa-solid fa-sparkles"></i>
+    </div>
+
+    <div class="ai-chat-panel" id="ai-chat-panel" style="display: none;">
+        <header class="ai-chat-header">
+            <div class="ai-chat-title">
+                <i class="fa-solid fa-sparkles"></i>
+                <span>Private AI Assistant</span>
+            </div>
+            <button class="btn-icon" id="ai-chat-close" title="Close Chat"><i class="fa-solid fa-xmark"></i></button>
+        </header>
+        <div class="ai-chat-messages" id="ai-chat-messages-container">
+            <div class="ai-msg ai-msg-system">
+                Hello! I am your private homeserver AI Assistant. I can see all your tasks, help you optimize your schedule, or draft new plans. 
+                <br><br>
+                <strong>Try asking me:</strong>
+                <div class="ai-suggestions">
+                    <button class="ai-suggest-chip" data-prompt="Am I overloaded today? Optimize my schedule by rescheduling low priority tasks.">Am I overloaded? Reschedule low priority tasks.</button>
+                    <button class="ai-suggest-chip" data-prompt="Create a step-by-step checklist to learn Rust basics in a new 'Rust basics' project.">Create a checklist to learn Rust basics.</button>
+                    <button class="ai-suggest-chip" data-prompt="Analyze my historical activity. How is my productivity timeline looking?">How is my productivity looking?</button>
+                </div>
+            </div>
+        </div>
+        <div class="ai-chat-input-row">
+            <input type="text" id="ai-chat-input" class="form-control" placeholder="Ask your local LLM assistant...">
+            <button class="btn btn-primary-sm" id="ai-chat-send"><i class="fa-solid fa-paper-plane"></i></button>
+        </div>
+    </div>
+
+    <!-- Main JavaScript Logic -->
+    <script src="app.js?v=5"></script>
+</body>
+</html>
