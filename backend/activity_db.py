@@ -20,7 +20,7 @@ def init_db():
             # Create the atreus database if it doesn't exist
             db_url = f"{COUCHDB_URL.rstrip('/')}/{COUCHDB_DB}"
             res = requests.put(db_url)
-            if res.status_code not in [201, 412]:
+            if res.status_code not in [200, 201, 412]:
                 print(f"Error creating CouchDB database {COUCHDB_DB}: {res.status_code} - {res.text}")
             
             # Create index for type field
@@ -125,7 +125,7 @@ def set_setting(key: str, value: str):
                 doc = res.json()
             doc[key] = str(value)
             res = requests.put(url, json=doc)
-            if res.status_code not in [201, 202]:
+            if res.status_code not in [200, 201, 202]:
                 print(f"Failed to set setting {key} in CouchDB: {res.status_code} - {res.text}")
         except Exception as e:
             print(f"Error setting setting {key} in CouchDB: {e}")
@@ -151,7 +151,7 @@ def log_action(action: str, task_id: str, task_title: str, project: str, details
                 "details": details
             }
             res = requests.post(url, json=doc)
-            if res.status_code not in [201, 202]:
+            if res.status_code not in [200, 201, 202]:
                 print(f"Failed to log action in CouchDB: {res.status_code} - {res.text}")
         except Exception as e:
             print(f"Error logging action in CouchDB: {e}")

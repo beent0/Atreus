@@ -936,7 +936,7 @@ def couchdb_save_task(task: Dict[str, Any], old_project: str = None) -> bool:
                 doc[k] = v
                 
         res_put = requests.put(doc_url, json=doc)
-        return res_put.status_code in [201, 202]
+        return res_put.status_code in [200, 201, 202]
     except Exception as e:
         print(f"Error saving task to CouchDB: {e}")
     return False
@@ -949,7 +949,7 @@ def couchdb_delete_task(project: str, task_id: str) -> bool:
             doc = res.json()
             doc["_deleted"] = True
             res_del = requests.put(doc_url, json=doc)
-            return res_del.status_code in [201, 202]
+            return res_del.status_code in [200, 201, 202]
     except Exception as e:
         print(f"Error deleting task from CouchDB: {e}")
     return False
@@ -964,7 +964,7 @@ def couchdb_create_project(name: str) -> bool:
             "name": name
         }
         res = requests.put(doc_url, json=doc)
-        return res.status_code in [201, 202, 412]
+        return res.status_code in [200, 201, 202, 412]
     except Exception as e:
         print(f"Error creating project in CouchDB: {e}")
     return False
@@ -1038,7 +1038,7 @@ def couchdb_create_section(project_name: str, section_name: str) -> bool:
             "name": section_name
         }
         res = requests.put(doc_url, json=doc)
-        return res.status_code in [201, 202, 412]
+        return res.status_code in [200, 201, 202, 412]
     except Exception as e:
         print(f"Error creating section in CouchDB: {e}")
     return False
@@ -1116,7 +1116,7 @@ def couchdb_archive_task(project: str, task_id: str) -> bool:
             doc["archived"] = True
             doc["completion_date"] = date.today().isoformat()
             res_put = requests.put(doc_url, json=doc)
-            return res_put.status_code in [201, 202]
+            return res_put.status_code in [200, 201, 202]
     except Exception as e:
         print(f"Error archiving task in CouchDB: {e}")
     return False
@@ -1152,7 +1152,7 @@ def couchdb_unarchive_task(project: str, task_id: str) -> bool:
             doc["archived"] = False
             doc["completion_date"] = None
             res_put = requests.put(doc_url, json=doc)
-            return res_put.status_code in [201, 202]
+            return res_put.status_code in [200, 201, 202]
     except Exception as e:
         print(f"Error unarchiving task in CouchDB: {e}")
     return False
