@@ -913,7 +913,7 @@ def couchdb_get_projects() -> List[Dict[str, Any]]:
         print(f"Error fetching projects from CouchDB: {e}")
     return []
 
-def couchdb_save_task(task: Dict[str, Any]) -> bool:
+def couchdb_save_task(task: Dict[str, Any], old_project: str = None) -> bool:
     try:
         task_id = task.get("id") or task.get("_id")
         if not task_id:
