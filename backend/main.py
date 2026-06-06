@@ -613,12 +613,28 @@ def build_assistant_system_prompt() -> str:
         tasks_summary.append(
             f"- [{t['id']}] {t['title']} | Project: {t['project']} | Section: {t['section']} | {status} | Priority: {prio} | {due}{recur}"
         )
-    tasks_text = "\n".join(tasks_summary)
     
-    projects_text = ", ".join([p["name"] for p in projects])
+    if not tasks_summary:
+        tasks_text = "(The tasks database is currently completely empty. The user has 0 tasks. Do NOT make up, invent, or hallucinate any tasks or task counts.)"
+    else:
+        tasks_text = "\n".join(tasks_summary)
+        
+    # Format projects with their actual active task count to prevent LLM hallucination
+    projects_summary = []
+    for p in projects:
+        name = p["name"]
+        active_count = sum(1 for t in tasks if t["project"] == name and not t.get("completed", False))
+        projects_summary.append(f"{name} ({active_count} active tasks)")
+        
+    if not projects_summary:
+        projects_text = "No active projects"
+    else:
+        projects_text = ", ".join(projects_summary)
     
     prompt = f"""You are the Atreus AI Assistant, a local productivity advisor running alongside the user's private homeserver vault.
 Your goal is to help the user manage their tasks, optimize their schedule, analyze load, and plan projects.
+
+CRITICAL INSTRUCTION: You must base your responses ONLY on the actual tasks provided in the "User's Tasks Database" below. If the database is empty or a project has 0 active tasks, do NOT invent or hallucinate any tasks, task titles, or descriptions (such as "Task not specified" or placeholder tasks). If there are no tasks, explicitly inform the user that they have 0 tasks.
 
 Current Date: {today_str}
 
