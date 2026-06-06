@@ -1,4 +1,5 @@
 import os
+import requests
 import zipfile
 import asyncio
 import shutil
@@ -321,13 +322,15 @@ def fetch_activity():
 
 @app.get("/api/settings")
 def fetch_settings():
+    ollama_url = os.environ.get("OLLAMA_URL") or get_setting("ollama_url", "http://localhost:11434")
+    ollama_model = os.environ.get("OLLAMA_MODEL") or get_setting("ollama_model", "llama3")
     return {
         "obsidian_vault_path": get_setting("obsidian_vault_path"),
         "daily_goal": int(get_setting("daily_goal", "5")),
         "weekly_goal": int(get_setting("weekly_goal", "30")),
         "theme": get_setting("theme", "atreus-snow"),
-        "ollama_url": get_setting("ollama_url", "http://localhost:11434"),
-        "ollama_model": get_setting("ollama_model", "llama3"),
+        "ollama_url": ollama_url,
+        "ollama_model": ollama_model,
         "week_start": get_setting("week_start", "monday"),
         "carry_over_overdue": get_setting("carry_over_overdue", "true") == "true",
         "auto_archive_completed": get_setting("auto_archive_completed", "true") == "true",
@@ -551,14 +554,44 @@ class ChatRequest(BaseModel):
     messages: List[ChatMessage]
 
 def call_ollama_sync(url: str, payload: dict) -> dict:
-    req = urllib.request.Request(
-        f"{url}/api/chat",
-        data=json.dumps(payload).encode("utf-8"),
-        headers={"Content-Type": "application/json"},
-        method="POST"
-    )
-    with urllib.request.urlopen(req, timeout=40) as response:
-        return json.loads(response.read().decode("utf-8"))
+    # 1. Clean the URL (remove trailing slashes, strip whitespace)
+    url = url.strip().rstrip('/')
+    if not url.startswith(("http://", "https://")):
+        url = f"http://{url}"
+        
+    chat_url = f"{url}/api/chat"
+    
+    try:
+        response = requests.post(chat_url, json=payload, timeout=40)
+    except requests.exceptions.Timeout:
+        raise RuntimeError("Request timed out after 40 seconds. Make sure your Ollama server is responsive and the model is loaded.")
+    except requests.exceptions.ConnectionError as ce:
+        raise RuntimeError(f"Connection failed: {ce}. Please check if the Ollama server is running and accessible at this URL.")
+    except requests.exceptions.RequestException as re:
+        raise RuntimeError(f"Request failed: {re}")
+
+    # Check for HTTP errors
+    if response.status_code != 200:
+        try:
+            err_json = response.json()
+            err_msg = err_json.get("error", f"HTTP {response.status_code}")
+        except Exception:
+            err_msg = f"HTTP {response.status_code}: {response.text}"
+        raise RuntimeError(err_msg)
+
+    # Validate response structure
+    try:
+        data = response.json()
+    except Exception:
+        raise RuntimeError("Ollama returned an invalid non-JSON response.")
+
+    if "error" in data:
+        raise RuntimeError(data["error"])
+        
+    if "message" not in data or "content" not in data["message"]:
+        raise RuntimeError("Ollama response did not contain the expected 'message' and 'content' fields.")
+
+    return data
 
 async def call_ollama_async(url: str, payload: dict) -> dict:
     return await asyncio.to_thread(call_ollama_sync, url, payload)
@@ -688,11 +721,10 @@ def parse_and_execute_assistant_actions(response_text: str) -> str:
 
 @app.post("/api/assistant/chat")
 async def assistant_chat(request: ChatRequest):
-    import urllib.request
     import json
     
-    ollama_url = get_setting("ollama_url", "http://localhost:11434")
-    ollama_model = get_setting("ollama_model", "llama3")
+    ollama_url = os.environ.get("OLLAMA_URL") or get_setting("ollama_url", "http://localhost:11434")
+    ollama_model = os.environ.get("OLLAMA_MODEL") or get_setting("ollama_model", "llama3")
     
     # Compile messages including system prompt
     system_prompt = build_assistant_system_prompt()
@@ -723,7 +755,23 @@ async def assistant_chat(request: ChatRequest):
                 
         return {"response": clean_reply}
     except Exception as e:
-        error_msg = f"Your local AI Assistant is ready! However, I could not reach your local Ollama server at `{ollama_url}` using model `{ollama_model}`.\n\n**Quick Guide to Enable Your AI Assistant:**\n1. Ensure Ollama is running on your server (`ollama serve`).\n2. Download a model, e.g., `ollama run llama3` (or `mistral`, `gemma`).\n3. Go to **Settings** in this app to customize your Ollama URL and Model name if they differ!"
+        err_str = str(e)
+        if "not found" in err_str.lower() or "does not exist" in err_str.lower():
+            error_msg = (
+                f"Connected to Ollama server at `{ollama_url}`, but the model `{ollama_model}` was not found.\n\n"
+                f"**How to fix this:**\n"
+                f"1. Run `ollama pull {ollama_model}` in your terminal to download the model.\n"
+                f"2. Or go to **Settings** in this app and specify a different, already-pulled model."
+            )
+        else:
+            error_msg = (
+                f"Could not communicate with your local Ollama server at `{ollama_url}` using model `{ollama_model}`.\n\n"
+                f"**Quick Troubleshooting Guide:**\n"
+                f"1. **Is Ollama running?** Start it with `ollama serve` (or run the Ollama app).\n"
+                f"2. **Docker Network:** If this app is running in Docker, set the Ollama URL to `http://host.docker.internal:11434` in Settings.\n"
+                f"3. **Bind Address:** Make sure Ollama accepts outside requests by setting the environment variable `OLLAMA_HOST=0.0.0.0` before running it on the host.\n\n"
+                f"*(Error details: {err_str})*"
+            )
         return {"response": error_msg}
 
 # ----------------- Serve Web Frontend -----------------
